@@ -1,7 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// import './styles/styles.css';
-// import App from './containers/App.js';
+import './styles/styles.css';
+import Game from './components/Game/game.js';
 
-// ReactDOM.render(<App />, document.getElementById('app'));
+const App = () => (
+    <section><Game /></section>
+)
+
+ReactDOM.render(<App />, document.getElementById('app'));
