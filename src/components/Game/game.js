@@ -1,19 +1,49 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 
 import './game.css';
-import ledger from '../../ledger.js';
+import { ledger, bigOAnswers } from '../../ledger.js';
 
 class Game extends Component {
     constructor(props) {
         super(props);
 
-        const question = ledger[Math.floor(Math.random() * ledger.length)];
-
         // Init State
         this.state = {
-            currentQuestion: question
+            currentQuestion: {},
+            answerFound: false,
+            correctAnswerIndex: -1,
+            answersClicked: bigOAnswers.map(() => false)
         };
+    }
+    
+    componentDidMount = () => {
+        this.newQuestion();
+    }
+
+    newQuestion = () => {
+        const question = ledger[Math.floor(Math.random() * ledger.length)];
+        this.setState({ currentQuestion: question });
+    }
+
+    checkAnswer = (value, answerIndex) => {
+        // if Answer was correct
+        if (value === this.state.currentQuestion.answer) {
+            // TODO: change button styles.. green
+            // this.newQuestion();
+            this.setState(prevState => ({
+                answerFound: true,
+                correctAnswerIndex: answerIndex,
+                answersClicked: prevState.answersClicked.map(() => true)
+            }));
+        }
+        else {
+            // TODO: change button style.. grey   
+            this.setState(prevState => ({
+                answersClicked: prevState.answersClicked.map((answer, index, arr) => answerIndex === index ? true : arr[index])
+            }));  
+        }
     }
 
 
@@ -23,17 +53,19 @@ class Game extends Component {
         return (
             <section className="game">
                 <p className="game__question">What is the time complexity of this function?</p>
-                <img className="game__img" src="./img/carbon-snip-1.png" alt="code image"/>
+                <img className="game__img" src={curQues.img} alt="code image"/>
 
                 <div className="game__body">
                     <ul className="game__answers">
-                        <li className="game__btn">1</li>
-                        <li className="game__btn">n</li>
-                        <li className="game__btn">n^2</li>
-
-                        <li className="game__btn">2^n</li>
-                        <li className="game__btn">log(n)</li>
-                        <li className="game__btn">n*log(n)</li>
+                        {bigOAnswers.map((answer, index) => (
+                            <li className={classnames(
+                                    "game__btn",
+                                    { "game__btn--clicked": this.state.answersClicked[index] && index !== this.state.correctAnswerIndex },
+                                    { "game__btn--correct": index === this.state.correctAnswerIndex }
+                                )} 
+                                key={index} 
+                                onClick={this.checkAnswer.bind(this, answer, index)}>{answer}</li>
+                        ))}
                     </ul>
                 </div>
             </section>
